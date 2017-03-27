@@ -68,6 +68,27 @@ Public Class HtmlExportRibbon
 
             If crLfFound Then
                 crLfFound = False
+
+                'Check for Listing Font
+                If currChar.Paragraphs.Count > 0 Then
+                    Dim tmpParagraph = currChar.Paragraphs(1)
+                    Dim fontForParagraph = tmpParagraph.Range.Font
+                    If fontForParagraph IsNot Nothing Then
+                        If Not listingInProgress Then
+                            If fontForParagraph.Name = "Consolas" Or fontForParagraph.Name = "Courier" Then
+                                listingInProgress = True
+                                sb.Append(vbCrLf & "<pre>" & vbCrLf & currChar.Text)
+                                Continue For
+                            End If
+                        Else
+                            If fontForParagraph.Name <> "Consolas" And fontForParagraph.Name <> "Courier" Then
+                                listingInProgress = False
+                                sb.Append(vbCrLf & "</pre>" & vbCrLf)
+                            End If
+                        End If
+                    End If
+                End If
+
                 Dim tmpCurrCharParagraphStyle = CType(currChar.ParagraphStyle, Style).NameLocal
                 If currentParagraphStyle = tmpCurrCharParagraphStyle Then
                     If listInProgress Then
@@ -77,9 +98,11 @@ Public Class HtmlExportRibbon
                     End If
 
                     If currentParagraphStyle = "Standard" Then
-                        sb.Append("</p>" & vbCrLf & "<p>")
+                        If Not listingInProgress Then
+                            sb.Append("</p>" & vbCrLf & "<p>")
+                        End If
                     End If
-                Else
+                    Else
                     If currentParagraphStyle = "Titel" Then
                         sb.Append("</titel>" & vbCrLf)
                     End If
@@ -105,9 +128,11 @@ Public Class HtmlExportRibbon
                         sb.Append("<titel>")
                     End If
                     If tmpCurrCharParagraphStyle = "Standard" Then
-                        sb.Append("<p>")
+                        If Not listingInProgress Then
+                            sb.Append("<p>")
+                        End If
                     End If
-                    If tmpCurrCharParagraphStyle = "Überschrift 1" Or tmpCurrCharParagraphStyle = "Heading 1" Then
+                        If tmpCurrCharParagraphStyle = "Überschrift 1" Or tmpCurrCharParagraphStyle = "Heading 1" Then
                         sb.Append("<h1>")
                     End If
                     If tmpCurrCharParagraphStyle = "Überschrift 2" Or tmpCurrCharParagraphStyle = "Heading 2" Then
