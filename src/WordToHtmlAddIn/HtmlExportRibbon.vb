@@ -6,23 +6,14 @@ Imports Microsoft.Office.Tools.Ribbon
 
 Public Class HtmlExportRibbon
 
-    Private myStyleTagTranslateItems As New List(Of StyleTagTranslateItem) From
-        {New StyleTagTranslateItem With {.GermanStyleName = "Titel", .EnglishStyleName = "Titel", .StartTag = "", .EndTag = "", .IsCharacterStyle = False},
-        {New StyleTagTranslateItem With {.GermanStyleName = "Überschrift 1", .EnglishStyleName = "Header 1", .StartTag = "<h1>", .EndTag = "</h1>", .IsCharacterStyle = False}},
-        {New StyleTagTranslateItem With {.GermanStyleName = "Überschrift 2", .EnglishStyleName = "Header 2", .StartTag = "<h1>", .EndTag = "</h1>", .IsCharacterStyle = False}},
-        {New StyleTagTranslateItem With {.GermanStyleName = "Überschrift 3", .EnglishStyleName = "Header 3", .StartTag = "<h1>", .EndTag = "</h1>", .IsCharacterStyle = False}}}
-
-    Private Sub HtmlExportRibbon_Load(ByVal sender As System.Object, ByVal e As RibbonUIEventArgs) Handles MyBase.Load
-
-    End Sub
-
-    Private Sub RibbonClick_Event(sender As Object, e As RibbonControlEventArgs) Handles Button1.Click
+    Private Sub HtmlExportButtonClick_Event(sender As Object, e As RibbonControlEventArgs) Handles Button1.Click
 
         Dim activeRange As Range = ThisAddIn.AddInReference?.Application?.ActiveDocument?.Range
 
         If activeRange Is Nothing Then
             MessageBox.Show("Sorry, there is no text to export!",
-                            "Can't export.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                            "Can't export.", MessageBoxButtons.OK,
+                            MessageBoxIcon.Exclamation)
             Exit Sub
         End If
 
@@ -48,6 +39,9 @@ Public Class HtmlExportRibbon
         Dim listInProgress = False
         Dim listingInProgress = False
 
+        Dim currentHyperlinkText As String = Nothing
+        Dim currentHyperlink As Hyperlink = Nothing
+
         For Each currChar As Range In activeRange.Characters
 
             If currChar.Bold = -1 And Not isBold Then
@@ -55,11 +49,11 @@ Public Class HtmlExportRibbon
                 isBold = True
             End If
             If currChar.Italic = -1 And Not isItalic Then
-                sb.Append("<en>")
+                sb.Append("<i>")
                 isItalic = True
             End If
             If currChar.Italic = 0 And isItalic Then
-                sb.Append("</en>")
+                sb.Append("</i>")
                 isItalic = False
             End If
             If currChar.Bold = 0 And isBold Then
@@ -129,6 +123,25 @@ Public Class HtmlExportRibbon
                     currentParagraphStyle = tmpCurrCharParagraphStyle
                 End If
             End If
+
+            If currChar.Hyperlinks?.Count > 0 And currentHyperlink Is Nothing Then
+                'Start collecting Hyperlink Display Text.
+                currentHyperlinkText = currChar.Text
+                'It's VB6, so it is 1 based! :-)
+                currentHyperlink = DirectCast(currChar.Hyperlinks(1), Hyperlink)
+                Continue For
+            End If
+
+            If currChar.Hyperlinks?.Count > 0 And currentHyperlink IsNot Nothing Then
+                currentHyperlinkText &= currChar.Text
+                Continue For
+            End If
+
+            If currChar.Hyperlinks?.Count = 0 And currentHyperlink IsNot Nothing Then
+                sb.Append("<a href=""" & currentHyperlink.Address & """ target=""""_blank"""">" & currentHyperlinkText & "</a>")
+                currentHyperlink = Nothing
+            End If
+
             sb.Append(currChar.Text)
 
             charCount += 1
