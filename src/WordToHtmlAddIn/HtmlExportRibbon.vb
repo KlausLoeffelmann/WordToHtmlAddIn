@@ -97,16 +97,16 @@ Public Class HtmlExportRibbon
                         sb.Append(vbCrLf)
                     End If
 
-                    If currentParagraphStyle = "Standard" Then
+                    If currentParagraphStyle = "Standard" Or currentParagraphStyle = "Normal" Then
                         If Not listingInProgress Then
                             sb.Append("</p>" & vbCrLf & "<p>")
                         End If
                     End If
-                    Else
-                    If currentParagraphStyle = "Titel" Then
+                Else
+                    If currentParagraphStyle = "Titel" Or currentParagraphStyle = "Title" Then
                         sb.Append("</titel>" & vbCrLf)
                     End If
-                    If currentParagraphStyle = "Standard" Then
+                    If currentParagraphStyle = "Standard" Or currentParagraphStyle = "Normal" Then
                         sb.Append("</p>" & vbCrLf)
                     End If
                     If currentParagraphStyle = "Überschrift 1" Or currentParagraphStyle = "Heading 1" Then
@@ -118,21 +118,21 @@ Public Class HtmlExportRibbon
                     If currentParagraphStyle = "Überschrift 3" Or currentParagraphStyle = "Heading 3" Then
                         sb.Append("</h3>" & vbCrLf)
                     End If
-                    If currentParagraphStyle = "Listenabsatz" Or currentParagraphStyle = "?" Then
+                    If currentParagraphStyle = "Listenabsatz" Or currentParagraphStyle = "List Paragraph" Then
                         sb.Append("</li>" & vbCrLf & "</ul>" & vbCrLf)
                         listInProgress = False
                     End If
 
 
-                    If tmpCurrCharParagraphStyle = "Titel" Then
+                    If tmpCurrCharParagraphStyle = "Titel" Or currentParagraphStyle = "Title" Then
                         sb.Append("<titel>")
                     End If
-                    If tmpCurrCharParagraphStyle = "Standard" Then
+                    If tmpCurrCharParagraphStyle = "Standard" Or currentParagraphStyle = "Normal" Then
                         If Not listingInProgress Then
                             sb.Append("<p>")
                         End If
                     End If
-                        If tmpCurrCharParagraphStyle = "Überschrift 1" Or tmpCurrCharParagraphStyle = "Heading 1" Then
+                    If tmpCurrCharParagraphStyle = "Überschrift 1" Or tmpCurrCharParagraphStyle = "Heading 1" Then
                         sb.Append("<h1>")
                     End If
                     If tmpCurrCharParagraphStyle = "Überschrift 2" Or tmpCurrCharParagraphStyle = "Heading 2" Then
@@ -141,7 +141,7 @@ Public Class HtmlExportRibbon
                     If tmpCurrCharParagraphStyle = "Überschrift 3" Or tmpCurrCharParagraphStyle = "Heading 3" Then
                         sb.Append("<h3>")
                     End If
-                    If tmpCurrCharParagraphStyle = "Listenabsatz" Or tmpCurrCharParagraphStyle = "?" Then
+                    If tmpCurrCharParagraphStyle = "Listenabsatz" Or tmpCurrCharParagraphStyle = "List Paragraph" Then
                         sb.Append("<ul>" & vbCrLf & "<li>")
                         listInProgress = True
                     End If
